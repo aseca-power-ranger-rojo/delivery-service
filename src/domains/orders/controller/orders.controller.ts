@@ -12,22 +12,34 @@ export const ordersController = Router();
 
 const service: OrdersService = new OrdersService(new OrdersRepository(db), new DeliverersService(new DeliverersRepository(db)))
 
-ordersController.get('/', async(req: Request, res: Response) => {
-  const orders: GetOrderDTO[] = await service.getOrders();
-  return res.status(httpStatus.OK).json(orders);
+ordersController.get('/', async(req: Request, res: Response, next) => {
+  try {
+    const orders: GetOrderDTO[] = await service.getOrders();
+    return res.status(httpStatus.OK).json(orders);
+  } catch (error) {
+    next(error);
+  }
 });
   
-ordersController.post('/', BodyValidation(CreateOrderDTO),  async(req: Request, res: Response) => {
-  const data = req.body;
-  await service.createOrder(data);
-  return res.status(httpStatus.CREATED).json();
+ordersController.post('/', BodyValidation(CreateOrderDTO),  async(req: Request, res: Response, next) => {
+  try {
+    const data = req.body;
+    await service.createOrder(data);
+    return res.status(httpStatus.CREATED).json();
+  } catch (error) {
+    next(error);
+  }
 });
   
-ordersController.patch('/:orderId/:status', async(req: Request, res: Response) => {
-  const status = (OrderStatus as any)[req.params.status.toUpperCase()]
+ordersController.patch('/:orderId/:status', async(req: Request, res: Response, next) => {
+  try {
+    const status = (OrderStatus as any)[req.params.status.toUpperCase()]
 
-  if (status === undefined) throw new BadRequestException('Invalid status');
-  await service.updateOrderStatus(req.params.orderId, status as OrderStatus)
-  
-  return res.status(httpStatus.NO_CONTENT).json();
+    if (status === undefined) throw new BadRequestException('Invalid status');
+    await service.updateOrderStatus(req.params.orderId, status as OrderStatus)
+    
+    return res.status(httpStatus.NO_CONTENT).json();
+  } catch (error) {
+    next(error);
+  }
 });
