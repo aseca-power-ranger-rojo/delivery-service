@@ -5,10 +5,12 @@ import { OrdersRepository } from '../repository';
 import httpStatus from 'http-status';
 import { GetOrderDTO, CreateOrderDTO } from '../dto';
 import { OrderStatus } from '@prisma/client';
+import { DeliverersService } from '@domains/deliverer/service';
+import { DeliverersRepository } from '@domains/deliverer/repository';
 
 export const ordersController = Router();
 
-const service: OrdersService = new OrdersService(new OrdersRepository(db))
+const service: OrdersService = new OrdersService(new OrdersRepository(db), new DeliverersService(new DeliverersRepository(db)))
 
 ordersController.get('/', async(req: Request, res: Response) => {
   const orders: GetOrderDTO[] = await service.getOrders();
@@ -26,6 +28,6 @@ ordersController.patch('/:orderId/:status', async(req: Request, res: Response) =
 
   if (status === undefined) throw new BadRequestException('Invalid status');
   await service.updateOrderStatus(req.params.orderId, status as OrderStatus)
-  // TODO: Request to Control Tower when completed
+  
   return res.status(httpStatus.NO_CONTENT).json();
 });

@@ -28,7 +28,7 @@ model Deliverer {
 model OrderAssignment {
   id          String @id @default(uuid()) @db.Uuid
 
-  orderId     String      @db.Uuid
+  orderId     String      @db.Uuid @unique
   delivererId String      @db.Uuid
   status      OrderStatus @default(PENDING)
 

@@ -27,10 +27,15 @@ export class OrdersRepository {
         return orders.map(order => new GetOrderDTO(order));
     }
 
-    async createOrder(data: CreateOrderDTO): Promise<void> {
+    async createOrder(data: CreateOrderDTO, delivererId: string): Promise<void> {
         await this.db.orderAssignment.create({
             data: {
-                ...data
+                ...data,
+                deliverer: {
+                    connect: {
+                        id: delivererId
+                    }
+                }
             }
         })
     }
@@ -38,7 +43,7 @@ export class OrdersRepository {
     async updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
         await this.db.orderAssignment.update({
             where: {
-                id: orderId,
+                orderId: orderId,
             },
             data: {
                 status
