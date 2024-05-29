@@ -1,5 +1,5 @@
 services:
-  server:
+  delivery_service:
     build: .
     container_name: delivery_service
     restart: always
@@ -8,10 +8,12 @@ services:
     env_file:
       - .env
     depends_on:
-      db:
+      db_delivery_service:
         condition: service_healthy
+    networks:
+      - app-network
 
-  db:
+  db_delivery_service:
     image: postgres:alpine
     container_name: db_delivery_service
     restart: always
@@ -30,6 +32,12 @@ services:
       interval: 1s
       timeout: 1s
       retries: 15
+    networks:
+      - app-network
 
 volumes:
   db:
+
+networks:
+  app-network:
+    external: true
